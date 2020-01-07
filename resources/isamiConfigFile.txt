@@ -1,0 +1,19 @@
+# Common  Keyword
+PROJECT A380_ESC
+NB_CORE 1
+MEM_REQ 10000
+QUEUE mc_all_ser
+
+ISAMI_VERSION v9.5.0
+LAUNCHER_PARAMETER -application isami_derivatives
+
+JOB_NAME Murat_Omission
+
+DATA_HOST_RESULT_DIR /projects/a350_ima_ia_training/PRIVATE_DATA/Equinox/Isami_Tests/
+
+# include python script
+INCLUDE /projects/a350_ima_ia_training/PRIVATE_DATA/Equinox/Isami_Tests/Spectrum_analysis_Complex_Murat.py
+
+# run python script
+RUN /projects/a350_ima_ia_training/PRIVATE_DATA/Equinox/Isami_Tests/Spectrum_analysis_Complex_Murat.py
+

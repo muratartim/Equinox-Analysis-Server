@@ -1,0 +1,188 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- configure project specs -->
+  <groupId>EquinoxAnalysisServer</groupId>
+  <artifactId>EquinoxAnalysisServer</artifactId>
+  <version>1.0</version>
+  <name>Equinox Analysis Server</name>
+  <description>Equinox analysis server implementation.</description>
+  <url>https://github.com/muratartim/EquinoxAnalysisServer</url>
+  <packaging>jar</packaging>
+
+  <!-- build block -->
+  <build>
+
+    <!-- specify source and resource directories -->
+    <sourceDirectory>src</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>src</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </resource>
+    </resources>
+
+    <!-- configure plugins -->
+    <plugins>
+
+      <!-- configure compiler plugin to use JDK 8 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+
+      <!-- configure exec plugin to run the application in IDE -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.6.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <mainClass>equinox.analysisServer.EntryPoint</mainClass>
+        </configuration>
+      </plugin>
+
+<!-- configure dependency plugin to copy dependencies into libs directory -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>
+                ${project.build.directory}/libs
+              </outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <!-- configure jar plugin to deploy project artifacts -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>libs/</classpathPrefix>
+              <mainClass>equinox.analysisServer.EntryPoint</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <!-- define fabric8 plugin -->
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.28.0</version>
+        <configuration>
+          <dockerHost>unix:///var/run/docker.sock</dockerHost>
+          <verbose>true</verbose>
+          <images>
+            <!-- define image to build -->
+            <image>
+              <name>muratartim/equinox_analysis_server</name>
+              <build>
+                <dockerFileDir>${project.basedir}</dockerFileDir>
+                <!-- attach project’s artifact and dependencies -->
+                <assembly>
+                  <name>target</name>
+                  <inline>
+                    <dependencySets>
+                      <!-- dependencies -->
+                      <dependencySet>
+                        <outputDirectory>libs</outputDirectory>
+                        <useProjectArtifact>false</useProjectArtifact>
+                      </dependencySet>
+                      <!-- artifact -->
+                      <dependencySet>
+                        <include>${project.artifactId}</include>
+                      </dependencySet>
+                    </dependencySets>
+                  </inline>
+                </assembly>
+                <tags>
+                  <tag>latest</tag>
+                </tags>
+              </build>
+            </image>
+          </images>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+  
+  <!-- dependency repositories -->
+  <repositories>
+
+    <!-- local repository -->
+    <repository>
+      <id>my-local-repo</id>
+      <url>file://${basedir}/lib</url>
+    </repository>
+
+  </repositories>
+  
+  <!-- dependencies -->
+  <dependencies>
+  
+    <!-- commons-lang3 -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.7</version>
+    </dependency>
+    
+    <!-- kryonet -->
+    <dependency>
+      <groupId>com.esotericsoftware</groupId>
+      <artifactId>kryonet</artifactId>
+      <version>2.22.0-RC1</version>
+    </dependency>
+    
+    <!-- jsch -->
+    <dependency>
+      <groupId>com.jcraft</groupId>
+      <artifactId>jsch</artifactId>
+      <version>0.1.54</version>
+    </dependency>
+    
+    <!-- jasypt -->
+    <dependency>
+      <groupId>org.jasypt</groupId>
+      <artifactId>jasypt</artifactId>
+      <version>1.9.2</version>
+    </dependency>
+    
+    <!-- local repository: com.equinox.serverUtilities -->
+    <dependency>
+      <groupId>com.equinox</groupId>
+      <artifactId>serverUtilities</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    
+  </dependencies>
+</project>
